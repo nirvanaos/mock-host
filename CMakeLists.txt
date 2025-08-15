@@ -27,6 +27,10 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/
     FILES_MATCHING PATTERN "*.h"
 )
 
+target_include_directories (${PROJECT_NAME} PUBLIC
+	$<INSTALL_INTERFACE:include>
+)
+
 # Generate and install *-targets.cmake 
 install(EXPORT ${PROJECT_NAME}_targets
     FILE ${PROJECT_NAME}-targets.cmake

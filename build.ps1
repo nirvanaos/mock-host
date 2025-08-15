@@ -9,8 +9,6 @@ if ($args.count -ge 2) {
 	$config = "Debug"
 }
 
-& "$PSScriptRoot\vsdevshell.ps1"
-
 $ErrorActionPreference = "Stop"
 
 & "$PSScriptRoot\vsdevshell.ps1"

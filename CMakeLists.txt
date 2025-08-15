@@ -35,8 +35,6 @@ install(EXPORT ${PROJECT_NAME}_targets
 
 # Generate the config file in the current binary dir (this ensures it's not placed directly in source)
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake"
-    "include(CMakeFindDependencyMacro)\n"
-    "find_dependency(SQLiteCpp REQUIRED)\n"
     "include(\"\${CMAKE_CURRENT_LIST_DIR}/${PROJECT_NAME}-targets.cmake\")\n"
 )
 

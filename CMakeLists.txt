@@ -11,3 +11,11 @@ add_library (mockhost SHARED
 )
 
 target_compile_definitions (mockhost PRIVATE MOCKHOST_EXPORTS)
+
+target_include_directories (mockhost PRIVATE
+	${CMAKE_SOURCE_DIR}/library/Include/Nirvana
+)
+
+if (WIN32)
+target_link_libraries (mockhost PRIVATE mincore)
+endif ()

@@ -23,7 +23,7 @@
 * Send comments and/or bug reports to:
 *  popov.nirvana@gmail.com
 */
-#include "HostAPI.h"
+#include "../include/HostAPI.h"
 
 #include <stdlib.h>
 #include <stdio.h>

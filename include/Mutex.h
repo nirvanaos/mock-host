@@ -42,21 +42,21 @@ namespace Test {
 class Mutex
 {
 public:
-	Mutex () :
+	Mutex () noexcept :
 		impl_ (host_Mutex_create ())
 	{}
 
-	~Mutex ()
+	~Mutex () noexcept
 	{
 		host_Mutex_destroy (impl_);
 	}
 
-	void lock ()
+	void lock () noexcept
 	{
 		host_Mutex_lock (impl_);
 	}
 
-	void unlock ()
+	void unlock () noexcept
 	{
 		host_Mutex_unlock (impl_);
 	}
@@ -68,13 +68,13 @@ private:
 class LockGuard 
 {
 public:
-	LockGuard (Mutex& mutex) :
+	LockGuard (Mutex& mutex) noexcept :
 		mutex_ (mutex)
 	{
 		mutex.lock ();
 	}
 
-	~LockGuard ()
+	~LockGuard () noexcept
 	{
 		mutex_.unlock ();
 	}

@@ -33,7 +33,6 @@
 
 NIRVANA_MOCK_EXPORT void host_print_error (const char* s);
 NIRVANA_MOCK_EXPORT void host_debug_break ();
-NIRVANA_MOCK_EXPORT void host_atexit (void (*func)(void));
 NIRVANA_MOCK_EXPORT void* host_allocate (size_t size, size_t align);
 NIRVANA_MOCK_EXPORT void host_release (void* p);
 NIRVANA_MOCK_EXPORT uint64_t host_system_clock ();
@@ -71,23 +70,22 @@ struct host_Stat
 	struct timespec mtim;
 	struct timespec ctim;
 };
-
 NIRVANA_MOCK_EXPORT int host_stat (const char* path, host_Stat& st);
 NIRVANA_MOCK_EXPORT int host_fstat (int, host_Stat& st);
-NIRVANA_MOCK_EXPORT int host_rename (const char* oldname, const char* newname);
 
+NIRVANA_MOCK_EXPORT int host_rename (const char* oldname, const char* newname);
 NIRVANA_MOCK_EXPORT int host_CS_alloc (void (*deleter) (void*), uint16_t& key);
 NIRVANA_MOCK_EXPORT void host_CS_free (unsigned key);
 NIRVANA_MOCK_EXPORT int host_CS_set (unsigned key, void* p);
 NIRVANA_MOCK_EXPORT void* host_CS_get (unsigned key);
 NIRVANA_MOCK_EXPORT unsigned host_hardware_concurrency ();
-
 NIRVANA_MOCK_EXPORT void host_raise (int signal);
 
 typedef void* host_OnceControl;
-
 NIRVANA_MOCK_EXPORT void host_once (host_OnceControl& control, void (*init_routine)(void));
 
 NIRVANA_MOCK_EXPORT const char* host_locale ();
+NIRVANA_MOCK_EXPORT const char* host_getenv (const char* name);
+NIRVANA_MOCK_EXPORT void host_exit (int ret);
 
 #endif

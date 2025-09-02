@@ -45,6 +45,10 @@
 
 #endif
 
+#ifdef __cplusplus
 #define NIRVANA_MOCK_EXPORT extern "C" NIRVANA_MOCK_EXP
+#else
+#define NIRVANA_MOCK_EXPORT NIRVANA_MOCK_EXP
+#endif
 
 #endif

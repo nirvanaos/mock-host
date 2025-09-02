@@ -247,11 +247,6 @@ NIRVANA_MOCK_EXPORT void host_debug_break ()
 	psnip_trap ();
 }
 
-NIRVANA_MOCK_EXPORT void host_atexit (void (*func)(void))
-{
-	::atexit (func);
-}
-
 NIRVANA_MOCK_EXPORT void* host_allocate (size_t size, size_t align)
 {
 #ifdef _WIN32
@@ -629,4 +624,14 @@ NIRVANA_MOCK_EXPORT void host_once (host_OnceControl& control, void (*init_routi
 	static_assert (sizeof (host_OnceControl) == sizeof (pthread_once_t), "once control");
 	pthread_once ((pthread_once_t*)&control, init_routine);
 #endif
+}
+
+NIRVANA_MOCK_EXPORT const char* host_getenv (const char* name)
+{
+  return getenv (name);
+}
+
+NIRVANA_MOCK_EXPORT void host_exit (int ret)
+{
+  return exit (ret);
 }

@@ -33,6 +33,7 @@
 #include <fcntl.h>
 #include <locale.h>
 #include <signal.h>
+#include <string.h>
 
 #include "constants.h"
 
@@ -63,6 +64,7 @@ typedef struct _stat64 HostStat;
 
 #include <unistd.h>
 #include <pthread.h>
+#include <limits.h>
 
 typedef size_t RWSize;
 typedef int64_t FileOff;
@@ -269,7 +271,7 @@ NIRVANA_MOCK_EXPORT uint64_t host_system_clock ()
 {
 	struct timespec ts;
 	timespec_get (&ts, TIME_UTC);
-	return ts.tv_sec * 10000000I64 + ts.tv_nsec / 100;
+	return ts.tv_sec * 10000000LL + ts.tv_nsec / 100;
 }
 
 NIRVANA_MOCK_EXPORT int host_time_zone_offset ()
@@ -288,15 +290,19 @@ NIRVANA_MOCK_EXPORT uint64_t host_steady_clock ()
 	QueryInterruptTimePrecise (&t);
 	return t;
 #else
-	struct timespec* ts;
+	struct timespec ts;
 	clock_gettime (CLOCK_MONOTONIC, &ts);
-	return ts.tv_sec * TimeBase::SECOND + ts.tv_nsec / 100;
+	return ts.tv_sec * 10000000ULL + ts.tv_nsec / 100;
 #endif
 }
 
 NIRVANA_MOCK_EXPORT size_t host_max_path ()
 {
+#ifdef _WIN32
 	return MAX_PATH;
+#else
+  return PATH_MAX;
+#endif
 }
 
 NIRVANA_MOCK_EXPORT char* host_getcwd (char* buf, size_t size)
@@ -621,7 +627,7 @@ NIRVANA_MOCK_EXPORT void host_once (host_OnceControl& control, void (*init_routi
 	static_assert (sizeof (host_OnceControl) == sizeof (INIT_ONCE), "once control");
 	InitOnceExecuteOnce ((PINIT_ONCE)&control, init_once, (void*)init_routine, nullptr);
 #else
-	static_assert (sizeof (host_OnceControl) == sizeof (pthread_once_t), "once control");
+	static_assert (sizeof (host_OnceControl) >= sizeof (pthread_once_t), "once control");
 	pthread_once ((pthread_once_t*)&control, init_routine);
 #endif
 }

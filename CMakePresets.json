@@ -1,0 +1,211 @@
+{
+  "version": 7,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 7
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+    },
+    {
+      "inherits": "base",
+      "name": "msvs",
+      "hidden": true,
+      "generator": "Visual Studio 17 2022",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "inherits": "msvs",
+      "name": "win-x64",
+      "displayName": "Windows x64",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/build/win/x64",
+      "cacheVariables": {
+        "CMAKE_GENERATOR_PLATFORM": "x64"
+      }
+    },
+    {
+      "inherits": "msvs",
+      "name": "win-x86",
+      "displayName": "Windows x86",
+      "architecture": "Win32",
+      "binaryDir": "${sourceDir}/build/win/x86",
+      "cacheVariables": {
+        "CMAKE_GENERATOR_PLATFORM": "Win32"
+      }
+    },
+    {
+      "inherits": "base",
+      "name": "ninja",
+      "hidden": true,
+      "generator": "Ninja Multi-Config"
+    },
+    {
+      "inherits": "ninja",
+      "name": "gc",
+      "displayName": "GNU C",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "binaryDir": "${sourceDir}/build/gc",
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "g++"
+      }
+    },
+    {
+      "inherits": "ninja",
+      "name": "clang",
+      "displayName": "CLang",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "binaryDir": "${sourceDir}/build/clang",
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "win-x64-debug",
+      "displayName": "Windows x64 Debug",
+      "configurePreset": "win-x64",
+      "configuration": "Debug"
+    },
+    {
+      "name": "win-x64-release",
+      "displayName": "Windows x64 Release",
+      "configurePreset": "win-x64",
+      "configuration": "Release"
+    },
+    {
+      "name": "win-x86-debug",
+      "displayName": "Windows x86 Debug",
+      "configurePreset": "win-x86",
+      "configuration": "Debug"
+    },
+    {
+      "name": "win-x86-release",
+      "displayName": "Windows x86 Release",
+      "configurePreset": "win-x86",
+      "configuration": "Release"
+    },
+    {
+      "name": "gc-debug",
+      "displayName": "GNU C Debug",
+      "configurePreset": "gc",
+      "configuration": "Debug"
+    },
+    {
+      "name": "gc-release",
+      "displayName": "GNU C Release",
+      "configurePreset": "gc",
+      "configuration": "Release"
+    },
+    {
+      "name": "clang-debug",
+      "displayName": "CLang Debug",
+      "configurePreset": "clang",
+      "configuration": "Debug"
+    },
+    {
+      "name": "clang-release",
+      "displayName": "CLang Release",
+      "configurePreset": "clang",
+      "configuration": "Release"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "win-x64-debug",
+      "displayName": "Windows x64 Debug",
+      "configurePreset": "win-x64",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true,
+        "outputJUnitFile": "testresult/win-x64-debug.xml"
+      }
+    },
+    {
+      "name": "win-x64-release",
+      "displayName": "Windows x64 Release",
+      "configurePreset": "win-x64",
+      "configuration": "Release",
+      "output": {
+        "outputOnFailure": true,
+        "outputJUnitFile": "testresult/win-x64-release.xml"
+      }
+    },
+    {
+      "name": "win-x86-debug",
+      "displayName": "Windows x86 Debug",
+      "configurePreset": "win-x86",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true,
+        "outputJUnitFile": "testresult/win-x86-debug.xml"
+      }
+    },
+    {
+      "name": "win-x86-release",
+      "displayName": "Windows x86 Release",
+      "configurePreset": "win-x86",
+      "configuration": "Release",
+      "output": {
+        "outputOnFailure": true,
+        "outputJUnitFile": "testresult/win-x86-release.xml"
+      }
+    },
+    {
+      "name": "gc-debug",
+      "displayName": "GNU C Debug",
+      "configurePreset": "gc",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true,
+        "outputJUnitFile": "testresult/gc-debug.xml"
+      }
+    },
+    {
+      "name": "gc-release",
+      "displayName": "GNU C Release",
+      "configurePreset": "gc",
+      "configuration": "Release",
+      "output": {
+        "outputOnFailure": true,
+        "outputJUnitFile": "testresult/gc-release.xml"
+      }
+    },
+    {
+      "name": "clang-debug",
+      "displayName": "CLang Debug",
+      "configurePreset": "clang",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true,
+        "outputJUnitFile": "testresult/clang-debug.xml"
+      }
+    },
+    {
+      "name": "clang-release",
+      "displayName": "CLang Release",
+      "configurePreset": "clang",
+      "configuration": "Release",
+      "output": {
+        "outputOnFailure": true,
+        "outputJUnitFile": "testresult/clang-release.xml"
+      }
+    }
+  ]
+}

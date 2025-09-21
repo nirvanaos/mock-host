@@ -3,6 +3,7 @@ set (CMAKE_CXX_SCAN_FOR_MODULES 0)
 set (CMAKE_CONFIGURATION_TYPES Debug Release)
 
 project (mockhost LANGUAGES CXX VERSION 1.0)
+include (CTest)
 
 add_library (mockhost SHARED
 	src/constants.cpp
@@ -18,6 +19,10 @@ target_include_directories (mockhost PRIVATE
 
 if (WIN32)
 target_link_libraries (mockhost PRIVATE mincore)
+endif ()
+
+if (BUILD_TESTING)
+add_subdirectory (unittests)
 endif ()
 
 install(TARGETS mockhost EXPORT ${PROJECT_NAME}_targets)

@@ -399,7 +399,11 @@ NIRVANA_MOCK_EXPORT int host_dup2 (int src, int dst)
 
 NIRVANA_MOCK_EXPORT bool host_isatty (int fildesc)
 {
+#ifdef _WIN32
+  return 0 <= fildesc && fildesc <= 2;
+#else
 	return ::isatty (fildesc) != 0;
+#endif
 }
 
 NIRVANA_MOCK_EXPORT void host_sleep (uint64_t period100ns)

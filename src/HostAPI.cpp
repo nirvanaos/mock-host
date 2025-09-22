@@ -383,6 +383,11 @@ NIRVANA_MOCK_EXPORT int host_seek (int fildesc, int64_t off, int whence, uint64_
 {
 	static_assert (SEEK_SET == 0 && SEEK_CUR == 1 && SEEK_END == 2, "lseek constants");
 
+#ifdef _WIN32
+  if (SEEK_CUR == whence && 0 == off && GetFileType ((HANDLE)_get_osfhandle (fildesc)) != FILE_TYPE_DISK)
+    return errno_from_host (ESPIPE);
+#endif
+
 	auto p = lseek (fildesc, (FileOff)off, whence);
 	if (p < 0)
 		return errno_from_host (errno);

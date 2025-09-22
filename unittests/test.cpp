@@ -28,9 +28,26 @@
 
 namespace unittests {
 
+TEST (HostAPI, write)
+{
+  const char stdout [] = "stdout\n", stderr [] = "stderr\n";
+  EXPECT_EQ (host_write (1, stdout, strlen (stdout)), 0);
+  EXPECT_EQ (host_write (1, stderr, strlen (stderr)), 0);
+}
+
 TEST (HostAPI, isatty)
 {
+  EXPECT_TRUE (host_isatty (0));
   EXPECT_TRUE (host_isatty (1));
+  EXPECT_TRUE (host_isatty (2));
+}
+
+TEST (HostAPI, seek)
+{
+  uint64_t pos;
+  EXPECT_TRUE (host_seek (0, 0, SEEK_CUR, pos));
+  EXPECT_TRUE (host_seek (1, 0, SEEK_CUR, pos));
+  EXPECT_TRUE (host_seek (2, 0, SEEK_CUR, pos));
 }
 
 }

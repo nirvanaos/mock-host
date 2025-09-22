@@ -6,8 +6,13 @@ target_link_libraries (unittests PRIVATE
   GTest::gtest_main)
 
 if (MSVC)
-  target_compile_options (unittests PRIVATE "/utf-8")
-  target_compile_options (unittests PRIVATE "-D_CRT_SECURE_NO_WARNINGS")
+  target_compile_options (unittests PRIVATE
+    "/utf-8"
+    "/Zc:preprocessor"
+  )
+  target_compile_definitions (unittests PRIVATE
+    _CRT_SECURE_NO_WARNINGS
+  )
 endif()
 
 if (WIN32)

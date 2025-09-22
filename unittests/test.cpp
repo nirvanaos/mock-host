@@ -30,9 +30,10 @@ namespace unittests {
 
 TEST (HostAPI, write)
 {
-  const char stdout [] = "stdout\n", stderr [] = "stderr\n";
-  EXPECT_EQ (host_write (1, stdout, strlen (stdout)), 0);
-  EXPECT_EQ (host_write (1, stderr, strlen (stderr)), 0);
+  const char t1 [] = "stdout\n";
+  const char t2 [] = "stderr\n";
+  EXPECT_EQ (host_write (1, t1, strlen (t1)), 0);
+  EXPECT_EQ (host_write (2, t2, strlen (t2)), 0);
 }
 
 TEST (HostAPI, isatty)

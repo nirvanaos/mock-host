@@ -81,9 +81,6 @@ NIRVANA_MOCK_EXPORT void* host_CS_get (unsigned key);
 NIRVANA_MOCK_EXPORT unsigned host_hardware_concurrency ();
 NIRVANA_MOCK_EXPORT void host_raise (int signal);
 
-typedef void* host_OnceControl;
-NIRVANA_MOCK_EXPORT void host_once (host_OnceControl& control, void (*init_routine)(void));
-
 NIRVANA_MOCK_EXPORT const char* host_locale ();
 NIRVANA_MOCK_EXPORT const char* host_getenv (const char* name);
 NIRVANA_MOCK_EXPORT void host_exit (int ret);

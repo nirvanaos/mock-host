@@ -627,17 +627,6 @@ BOOL WINAPI init_once (PINIT_ONCE control, PVOID parameter, PVOID* context)
 
 #endif
 
-NIRVANA_MOCK_EXPORT void host_once (host_OnceControl& control, void (*init_routine)(void))
-{
-#ifdef _WIN32
-	static_assert (sizeof (host_OnceControl) == sizeof (INIT_ONCE), "once control");
-	InitOnceExecuteOnce ((PINIT_ONCE)&control, init_once, (void*)init_routine, nullptr);
-#else
-	static_assert (sizeof (host_OnceControl) >= sizeof (pthread_once_t), "once control");
-	pthread_once ((pthread_once_t*)&control, init_routine);
-#endif
-}
-
 NIRVANA_MOCK_EXPORT const char* host_getenv (const char* name)
 {
   return getenv (name);

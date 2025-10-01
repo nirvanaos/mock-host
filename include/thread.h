@@ -77,6 +77,15 @@ public:
 			host_abort ();
   }
 
+	thread& operator = (thread&& rhs) noexcept
+	{
+		function_ = std::move (rhs.function_);
+		exception_ = std::move (rhs.exception_);
+		impl_ = rhs.impl_;
+		rhs.impl_ = 0;
+		return *this;
+	}
+
   bool joinable () const noexcept
   {
     return impl_ != nullptr;

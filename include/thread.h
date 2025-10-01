@@ -94,6 +94,13 @@ public:
     }
   }
 
+	void swap (thread& other) noexcept
+	{
+		function_.swap (other.function_);
+		std::swap (exception_, other.exception_);
+		std::swap (impl_, other.impl_);
+	}
+
   static unsigned int hardware_concurrency () noexcept
   {
     return host_hardware_concurrency ();

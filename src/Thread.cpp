@@ -23,6 +23,8 @@
  * Send comments and/or bug reports to:
  *  popov.nirvana@gmail.com
  */
+
+#include <assert.h>
 #include "../include/thread.h"
 
 #ifdef _WIN32
@@ -44,11 +46,7 @@ struct host_Thread
 
 	~host_Thread ()
 	{
-		if (thread) {
-			TerminateThread (thread, 0);
-			WaitForSingleObject (thread, INFINITE);
-			CloseHandle (thread);
-		}
+		assert (!thread);
 	}
 
 	bool join ()
@@ -81,17 +79,16 @@ struct host_Thread
 
 struct host_Thread
 {
-	host_Thread (void (*f)(void *), void *p)
+	host_Thread (void (*f)(void *), void *p) :
+		function (f), param (p)
 	{
-		if (pthread_create (&thread, nullptr, f, p))
+		if (pthread_create (&thread, nullptr, thread_proc, this))
 			throw std::runtime_error ("Runtime error");
 	}
 
 	~host_Thread ()
 	{
-		if (thread) {
-			pthread_kill (&thread, SIGABRT);
-			pthread_join (thread);
+		assert (!thread);
 	}
 
 	bool join ()
@@ -99,11 +96,20 @@ struct host_Thread
 		bool ret = false;
 		if (thread) {
 			ret = pthread_join (thread, nullptr) == 0;
-			thread = nullptr;
+			thread = 0;
 		}
 		return ret;
 	}
 
+	static void* thread_proc (void *p)
+	{
+		reinterpret_cast<host_Thread *>(p)->function (
+				reinterpret_cast<host_Thread *>(p)->param);
+		return nullptr;
+	}
+
+	void (*function)(void *);
+	void *param;
 	pthread_t thread;
 };
 
@@ -120,5 +126,10 @@ NIRVANA_MOCK_EXPORT host_Thread *host_Thread_create (void (*f)(void *), void *p)
 
 NIRVANA_MOCK_EXPORT int host_Thread_join (host_Thread *thread)
 {
-	return thread->join ();
+	bool ret = false;
+	if (thread) {
+		ret = thread->join ();
+		delete thread;
+	}
+	return ret;
 }

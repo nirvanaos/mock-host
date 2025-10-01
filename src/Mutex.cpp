@@ -107,10 +107,16 @@ NIRVANA_MOCK_EXPORT void host_Mutex_destroy (host_Mutex* p)
 
 NIRVANA_MOCK_EXPORT int host_Mutex_lock (host_Mutex* p)
 {
-	return p->lock ();
+	if (p)
+		return p->lock ();
+	else
+		return false;
 }
 
 NIRVANA_MOCK_EXPORT int host_Mutex_unlock (host_Mutex* p)
 {
-	return p->unlock ();
+	if (p)
+		return p->unlock ();
+	else
+		return false;
 }

@@ -38,6 +38,7 @@ struct host_Thread;
 
 NIRVANA_MOCK_EXPORT host_Thread* host_Thread_create (void (*)(void*), void*);
 NIRVANA_MOCK_EXPORT int host_Thread_join (host_Thread*);
+
 NIRVANA_MOCK_EXPORT void host_abort ();
 NIRVANA_MOCK_EXPORT unsigned int host_hardware_concurrency ();
 
@@ -69,8 +70,8 @@ public:
 
   ~thread ()
   {
-    if (impl_)
-      host_abort ();
+		if (impl_)
+			host_abort ();
   }
 
   bool joinable () const noexcept

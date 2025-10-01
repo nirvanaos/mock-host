@@ -27,9 +27,10 @@
 #define NIRVANA_MOCK_THREAD_H_
 #pragma once
 
+#include <errno.h>
+
 #include <functional>
-#include <exception>
-#include <stdexcept>
+#include <system_error>
 #include <memory>
 
 #include "export.h"
@@ -54,6 +55,8 @@ public:
   {}
 
   thread (thread&& src) :
+		function_ (std::move (src.function_)),
+		exception_ (std::move (src.exception_)),
     impl_ (src.impl_)
   {
     src.impl_ = nullptr;
@@ -65,7 +68,7 @@ public:
     impl_ (host_Thread_create (thread_proc, this))
   {
     if (!impl_)
-     throw std::runtime_error ("Host API error");
+     	throw std::system_error (ENOMEM, std::system_category ());
   }
 
   ~thread ()
@@ -82,8 +85,9 @@ public:
   void join ()
   {
     if (impl_) {
-      if (!host_Thread_join (impl_))
-        throw std::runtime_error ("Host API error");
+			int err = host_Thread_join (impl_);
+			if (err)
+        throw std::system_error (err, std::system_category ());
       impl_ = nullptr;
       if (exception_)
         std::rethrow_exception (exception_);

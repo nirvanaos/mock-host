@@ -82,7 +82,7 @@ struct FlagConv
 	unsigned n, host;
 };
 
-static int errno_from_host (int err)
+int errno_from_host (int err)
 {
 	static const FlagConv codes [] = {
 		FLAG_CONV (EPERM),
@@ -616,16 +616,6 @@ NIRVANA_MOCK_EXPORT int* host_error_number ()
 	thread_local int err;
 	return &err;
 }
-
-#ifdef _WIN32
-
-BOOL WINAPI init_once (PINIT_ONCE control, PVOID parameter, PVOID* context)
-{
-	(*(void (*)(void))parameter) ();
-	return TRUE;
-}
-
-#endif
 
 NIRVANA_MOCK_EXPORT const char* host_getenv (const char* name)
 {

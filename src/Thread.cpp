@@ -25,6 +25,7 @@
  */
 
 #include <assert.h>
+#include <system_error>
 #include "../include/thread.h"
 
 #ifdef _WIN32
@@ -41,7 +42,7 @@ struct host_Thread
 		thread (CreateThread (nullptr, 0, thread_proc, this, 0, nullptr))
 	{
 		if (!thread)
-			throw std::runtime_error ("Runtime error");
+			throw std::system_error (ENOMEM, std::system_category ());
 	}
 
 	~host_Thread ()
@@ -49,15 +50,14 @@ struct host_Thread
 		assert (!thread);
 	}
 
-	bool join ()
+	int join ()
 	{
-		bool ret = false;
 		if (thread) {
-			ret = WaitForSingleObject (thread, INFINITE) == WAIT_OBJECT_0;
+			WaitForSingleObject (thread, INFINITE);
 			CloseHandle (thread);
 			thread = nullptr;
 		}
-		return ret;
+		return 0;
 	}
 
 	static DWORD WINAPI thread_proc (void *p)
@@ -82,8 +82,9 @@ struct host_Thread
 	host_Thread (void (*f)(void *), void *p) :
 		function (f), param (p)
 	{
-		if (pthread_create (&thread, nullptr, thread_proc, this))
-			throw std::runtime_error ("Runtime error");
+		int err = pthread_create (&thread, nullptr, thread_proc, this);
+		if (err)
+			throw std::system_error (err, std::system_category ());
 	}
 
 	~host_Thread ()
@@ -91,14 +92,14 @@ struct host_Thread
 		assert (!thread);
 	}
 
-	bool join ()
+	int join ()
 	{
-		bool ret = false;
+		int err = EINVAL;
 		if (thread) {
-			ret = pthread_join (thread, nullptr) == 0;
+			err = pthread_join (thread, nullptr);
 			thread = 0;
 		}
-		return ret;
+		return err;
 	}
 
 	static void* thread_proc (void *p)
@@ -115,6 +116,8 @@ struct host_Thread
 
 #endif
 
+extern int errno_from_host (int err);
+
 NIRVANA_MOCK_EXPORT host_Thread *host_Thread_create (void (*f)(void *), void *p)
 {
 	try {
@@ -126,10 +129,13 @@ NIRVANA_MOCK_EXPORT host_Thread *host_Thread_create (void (*f)(void *), void *p)
 
 NIRVANA_MOCK_EXPORT int host_Thread_join (host_Thread *thread)
 {
-	bool ret = false;
+	int err = EINVAL;
 	if (thread) {
-		ret = thread->join ();
+		err = thread->join ();
 		delete thread;
 	}
-	return ret;
+	
+	if (err)
+		err = errno_from_host (err);
+	return err;
 }

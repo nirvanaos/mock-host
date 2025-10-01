@@ -27,7 +27,7 @@
 #define NIRVANA_MOCK_MUTEX_H_
 #pragma once
 
-#include <stdexcept>
+#include <system_error>
 #include "export.h"
 
 struct host_Mutex;
@@ -48,8 +48,8 @@ public:
 		impl_ (host_Mutex_create ())
 	{
     if (!impl_)
-      throw std::runtime_error ("Host API error");
-  }
+			throw std::system_error (ENOMEM, std::system_category ());
+}
 
 	~mutex () noexcept
 	{
@@ -58,14 +58,16 @@ public:
 
 	void lock ()
 	{
-		if (!host_Mutex_lock (impl_))
-      throw std::runtime_error ("Host API error");
+		int err = host_Mutex_lock (impl_);
+		if (err)
+				throw std::system_error (err, std::system_category ());
 	}
 
 	void unlock ()
 	{
-		if (!host_Mutex_unlock (impl_))
-      throw std::runtime_error ("Host API error");
+		int err = host_Mutex_unlock (impl_);
+		if (err)
+				throw std::system_error (err, std::system_category ());
 	}
 
 private:

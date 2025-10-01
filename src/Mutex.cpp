@@ -44,16 +44,16 @@ struct host_Mutex
 		DeleteCriticalSection (&cs);
 	}
 
-	bool lock ()
+	int lock ()
 	{
 		EnterCriticalSection (&cs);
-    return true;
+    return 0;
 	}
 
-	bool unlock ()
+	int unlock ()
 	{
 		LeaveCriticalSection (&cs);
-    return true;
+    return 0;
 	}
 
 	CRITICAL_SECTION cs;
@@ -76,20 +76,22 @@ struct host_Mutex
 		pthread_mutex_destroy (&mutex);
 	}
 
-	bool lock ()
+	int lock ()
 	{
-		return pthread_mutex_lock (&mutex) == 0;
+		return pthread_mutex_lock (&mutex);
 	}
 
-	bool unlock ()
+	int unlock ()
 	{
-		return pthread_mutex_unlock (&mutex) == 0;
+		return pthread_mutex_unlock (&mutex);
 	}
 
 	pthread_mutex_t mutex;
 };
 
 #endif
+
+extern int errno_from_host (int err);
 
 NIRVANA_MOCK_EXPORT host_Mutex* host_Mutex_create ()
 {
@@ -107,16 +109,20 @@ NIRVANA_MOCK_EXPORT void host_Mutex_destroy (host_Mutex* p)
 
 NIRVANA_MOCK_EXPORT int host_Mutex_lock (host_Mutex* p)
 {
+	int err = EINVAL;
 	if (p)
-		return p->lock ();
-	else
-		return false;
+		err = p->lock ();
+	if (err)
+		err = errno_from_host (err);
+	return err;
 }
 
 NIRVANA_MOCK_EXPORT int host_Mutex_unlock (host_Mutex* p)
 {
+	int err = EINVAL;
 	if (p)
-		return p->unlock ();
-	else
-		return false;
+		err = p->unlock ();
+	if (err)
+		err = errno_from_host (err);
+	return err;
 }

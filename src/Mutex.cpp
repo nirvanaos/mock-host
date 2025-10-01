@@ -23,7 +23,7 @@
 * Send comments and/or bug reports to:
 *  popov.nirvana@gmail.com
 */
-#include "../include/Mutex.h"
+#include "../include/mutex.h"
 
 #ifdef _WIN32
 
@@ -36,25 +36,27 @@ struct host_Mutex
 {
 	host_Mutex ()
 	{
-		InitializeCriticalSection (&cs_);
+		InitializeCriticalSection (&cs);
 	}
 
 	~host_Mutex ()
 	{
-		DeleteCriticalSection (&cs_);
+		DeleteCriticalSection (&cs);
 	}
 
-	void lock ()
+	bool lock ()
 	{
-		EnterCriticalSection (&cs_);
+		EnterCriticalSection (&cs);
+    return true;
 	}
 
-	void unlock ()
+	bool unlock ()
 	{
-		LeaveCriticalSection (&cs_);
+		LeaveCriticalSection (&cs);
+    return true;
 	}
 
-	CRITICAL_SECTION cs_;
+	CRITICAL_SECTION cs;
 };
 
 #else
@@ -65,32 +67,37 @@ struct host_Mutex
 {
 	host_Mutex ()
 	{
-		pthread_mutex_init (&mutex_, nullptr);
+		if (pthread_mutex_init (&mutex, nullptr))
+      throw std::runtime_error ("Runtime error");
 	}
 
 	~host_Mutex ()
 	{
-		pthread_mutex_destroy (&mutex_);
+		pthread_mutex_destroy (&mutex);
 	}
 
-	void lock ()
+	bool lock ()
 	{
-		pthread_mutex_lock (&mutex_);
+		return pthread_mutex_lock (&mutex) == 0;
 	}
 
-	void unlock ()
+	bool unlock ()
 	{
-		pthread_mutex_unlock (&mutex_);
+		return pthread_mutex_unlock (&mutex) == 0;
 	}
 
-	pthread_mutex_t mutex_;
+	pthread_mutex_t mutex;
 };
 
 #endif
 
 NIRVANA_MOCK_EXPORT host_Mutex* host_Mutex_create ()
 {
-	return new host_Mutex;
+  try {
+	  return new host_Mutex;
+  } catch (...) {
+    return nullptr;
+  }
 }
 
 NIRVANA_MOCK_EXPORT void host_Mutex_destroy (host_Mutex* p)
@@ -98,12 +105,12 @@ NIRVANA_MOCK_EXPORT void host_Mutex_destroy (host_Mutex* p)
 	delete p;
 }
 
-NIRVANA_MOCK_EXPORT void host_Mutex_lock (host_Mutex* p)
+NIRVANA_MOCK_EXPORT int host_Mutex_lock (host_Mutex* p)
 {
-	p->lock ();
+	return p->lock ();
 }
 
-NIRVANA_MOCK_EXPORT void host_Mutex_unlock (host_Mutex* p)
+NIRVANA_MOCK_EXPORT int host_Mutex_unlock (host_Mutex* p)
 {
-	p->unlock ();
+	return p->unlock ();
 }

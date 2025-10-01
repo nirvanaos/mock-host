@@ -636,3 +636,8 @@ NIRVANA_MOCK_EXPORT void host_exit (int ret)
 {
   return exit (ret);
 }
+
+NIRVANA_MOCK_EXPORT void host_abort ()
+{
+  return abort ();
+}

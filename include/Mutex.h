@@ -27,54 +27,62 @@
 #define NIRVANA_MOCK_MUTEX_H_
 #pragma once
 
+#include <stdexcept>
 #include "export.h"
 
 struct host_Mutex;
 
 NIRVANA_MOCK_EXPORT host_Mutex* host_Mutex_create ();
 NIRVANA_MOCK_EXPORT void host_Mutex_destroy (host_Mutex* p);
-NIRVANA_MOCK_EXPORT void host_Mutex_lock (host_Mutex* p);
-NIRVANA_MOCK_EXPORT void host_Mutex_unlock (host_Mutex* p);
+NIRVANA_MOCK_EXPORT int host_Mutex_lock (host_Mutex* p);
+NIRVANA_MOCK_EXPORT int host_Mutex_unlock (host_Mutex* p);
 
 namespace Nirvana {
-namespace Test {
+namespace Mock {
 
-class Mutex
+// Drop-in replacement for std::mutex
+class mutex
 {
 public:
-	Mutex () noexcept :
+	mutex () :
 		impl_ (host_Mutex_create ())
-	{}
+	{
+    if (!impl_)
+      throw std::runtime_error ("Host API error");
+  }
 
-	~Mutex () noexcept
+	~mutex () noexcept
 	{
 		host_Mutex_destroy (impl_);
 	}
 
-	void lock () noexcept
+	void lock ()
 	{
-		host_Mutex_lock (impl_);
+		if (!host_Mutex_lock (impl_))
+      throw std::runtime_error ("Host API error");
 	}
 
-	void unlock () noexcept
+	void unlock ()
 	{
-		host_Mutex_unlock (impl_);
+		if (!host_Mutex_unlock (impl_))
+      throw std::runtime_error ("Host API error");
 	}
 
 private:
 	host_Mutex* impl_;
 };
 
-class LockGuard 
+template <class Mutex>
+class lock_guard
 {
 public:
-	LockGuard (Mutex& mutex) noexcept :
+	lock_guard (Mutex& mutex) :
 		mutex_ (mutex)
 	{
 		mutex.lock ();
 	}
 
-	~LockGuard () noexcept
+	~lock_guard ()
 	{
 		mutex_.unlock ();
 	}

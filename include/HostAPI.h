@@ -84,5 +84,6 @@ NIRVANA_MOCK_EXPORT void host_raise (int signal);
 NIRVANA_MOCK_EXPORT const char* host_locale ();
 NIRVANA_MOCK_EXPORT const char* host_getenv (const char* name);
 NIRVANA_MOCK_EXPORT void host_exit (int ret);
+NIRVANA_MOCK_EXPORT void host_abort ();
 
 #endif

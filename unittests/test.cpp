@@ -25,6 +25,9 @@
 */
 #include <gtest/gtest.h>
 #include "../include/HostAPI.h"
+#include "../include/thread.h"
+
+using Nirvana::Mock::thread;
 
 namespace unittests {
 
@@ -49,6 +52,59 @@ TEST (HostAPI, seek)
   EXPECT_TRUE (host_seek (0, 0, SEEK_CUR, pos));
   EXPECT_TRUE (host_seek (1, 0, SEEK_CUR, pos));
   EXPECT_TRUE (host_seek (2, 0, SEEK_CUR, pos));
+}
+
+class ThreadTest
+{
+public:
+  ThreadTest () :
+    passed_ (false)
+  {}
+
+  void run ()
+  {
+    passed_ = true;
+  }
+
+  bool passed () const
+  {
+    return passed_;
+  }
+
+private:
+  bool passed_;
+};
+
+void thread_test_func (bool& passed)
+{
+  passed = true;
+}
+
+TEST (HostAPI, thread)
+{
+  {
+    ThreadTest test;
+    thread thr (&ThreadTest::run, std::ref (test));
+    thr.join ();
+    EXPECT_TRUE (test.passed ());
+  }
+  {
+    ThreadTest test;
+    thread thr (&ThreadTest::run, &test);
+    thr.join ();
+    EXPECT_TRUE (test.passed ());
+  }
+  {
+    bool passed = false;
+    thread thr (thread_test_func, std::ref (passed));
+    thr.join ();
+    EXPECT_TRUE (passed);
+  }
+}
+
+TEST (HostAPI, hardware_concurrency)
+{
+	ASSERT_NE (thread::hardware_concurrency (), 0);
 }
 
 }

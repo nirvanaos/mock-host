@@ -31,15 +31,16 @@
 
 #include <functional>
 #include <system_error>
-#include <memory>
+#include <type_traits>
 
 #include "export.h"
 
 struct host_Thread;
 
+NIRVANA_MOCK_EXPORT void* host_allocate (size_t size, size_t align);
+NIRVANA_MOCK_EXPORT void host_release (void* p);
 NIRVANA_MOCK_EXPORT host_Thread* host_Thread_create (void (*)(void*), void*);
 NIRVANA_MOCK_EXPORT int host_Thread_join (host_Thread*);
-
 NIRVANA_MOCK_EXPORT unsigned int host_hardware_concurrency ();
 
 namespace Nirvana {
@@ -54,8 +55,6 @@ public:
   {}
 
   thread (thread&& src) :
-		function_ (std::move (src.function_)),
-		exception_ (std::move (src.exception_)),
     impl_ (src.impl_)
   {
     src.impl_ = nullptr;
@@ -63,12 +62,8 @@ public:
 
   template <class F, class ... Args>
   thread (F&& f, Args&& ... args) :
-    function_ (std::bind (std::forward <F> (f), std::forward <Args> (args)...)),
-    impl_ (host_Thread_create (thread_proc, this))
-  {
-    if (!impl_)
-     	throw std::system_error (ENOMEM, std::system_category ());
-  }
+    thread (std::bind (std::forward <F> (f), std::forward <Args> (args)...))
+  {}
 
   ~thread ()
   {
@@ -80,10 +75,8 @@ public:
 	{
 		if (impl_)
 			std::terminate ();
-		function_ = std::move (rhs.function_);
-		exception_ = std::move (rhs.exception_);
 		impl_ = rhs.impl_;
-		rhs.impl_ = 0;
+		rhs.impl_ = nullptr;
 		return *this;
 	}
 
@@ -95,20 +88,21 @@ public:
   void join ()
   {
     if (impl_) {
-			int err = host_Thread_join (impl_);
+			ImplBase* impl = impl_;
+			impl_ = nullptr;
+			int err = host_Thread_join (impl->host_thread);
+			std::exception_ptr exception = std::move (impl->exception);
+      delete impl;
 			if (err)
         throw std::system_error (err, std::system_category ());
-      impl_ = nullptr;
-      if (exception_)
-        std::rethrow_exception (exception_);
+      if (exception)
+        std::rethrow_exception (exception);
     } else
 			throw std::invalid_argument ("Not joinable thread");
   }
 
 	void swap (thread& other) noexcept
 	{
-		function_.swap (other.function_);
-		std::swap (exception_, other.exception_);
 		std::swap (impl_, other.impl_);
 	}
 
@@ -118,19 +112,68 @@ public:
   }
 
 private:
+	template <class F>
+	thread (F&& f) :
+		impl_ (new Impl <F> (std::move (f)))
+	{
+		if (!(impl_->host_thread = host_Thread_create (thread_proc, impl_))) {
+			delete impl_;
+     	throw std::system_error (ENOMEM, std::system_category ());
+		}
+	}
+
+	struct ImplBase
+	{
+		void* operator new (size_t cb)
+		{
+			return host_allocate (cb, alignof (Impl));
+		}
+
+		void operator delete (void* p) noexcept
+		{
+			host_release (p);
+		}
+
+		ImplBase () :
+			host_thread (nullptr)
+		{}
+
+		virtual ~ImplBase ()
+		{}
+
+		virtual void run () = 0;
+
+		std::exception_ptr exception;
+		host_Thread* host_thread;
+	};
+
   static void thread_proc (void* param) noexcept
   {
+		ImplBase* impl = reinterpret_cast <ImplBase*> (param);
     try {
-      (reinterpret_cast <thread*> (param)->function_) ();
+      impl->run ();
     } catch (...) {
-      reinterpret_cast <thread*> (param)->exception_ = std::current_exception ();
+      impl->exception = std::current_exception ();
     }
   }
 
 private:
-  std::function <void()> function_;
-  std::exception_ptr exception_;
-  host_Thread* impl_;
+	template <class F>
+	struct Impl : ImplBase
+	{
+		Impl (F&& f) :
+			function (std::move (f))
+		{}
+
+		void run () override
+		{
+			function ();
+		}
+
+		F function;
+	};
+
+  ImplBase* impl_;
 };
 
 }

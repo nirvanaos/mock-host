@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.25)
 set (CMAKE_CXX_SCAN_FOR_MODULES 0)
 set (CMAKE_CONFIGURATION_TYPES Debug Release)
 
-project (mockhost LANGUAGES CXX VERSION 3.0.2)
+project (mockhost LANGUAGES CXX VERSION 3.0.3)
 include (CTest)
 
 add_library (mockhost SHARED

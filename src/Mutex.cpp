@@ -23,7 +23,7 @@
 * Send comments and/or bug reports to:
 *  popov.nirvana@gmail.com
 */
-#include "../include/mutex.h"
+#include "../include/HostAPI.h"
 
 #ifdef _WIN32
 

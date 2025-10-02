@@ -26,7 +26,7 @@
 
 #include <assert.h>
 #include <system_error>
-#include "../include/thread.h"
+#include "../include/HostAPI.h"
 
 #ifdef _WIN32
 

@@ -86,4 +86,19 @@ NIRVANA_MOCK_EXPORT const char* host_getenv (const char* name);
 NIRVANA_MOCK_EXPORT void host_exit (int ret);
 NIRVANA_MOCK_EXPORT void host_abort ();
 
+struct host_Mutex;
+
+NIRVANA_MOCK_EXPORT host_Mutex* host_Mutex_create ();
+NIRVANA_MOCK_EXPORT void host_Mutex_destroy (host_Mutex* p);
+NIRVANA_MOCK_EXPORT int host_Mutex_lock (host_Mutex* p);
+NIRVANA_MOCK_EXPORT int host_Mutex_unlock (host_Mutex* p);
+
+struct host_Thread;
+
+NIRVANA_MOCK_EXPORT void* host_allocate (size_t size, size_t align);
+NIRVANA_MOCK_EXPORT void host_release (void* p);
+NIRVANA_MOCK_EXPORT host_Thread* host_Thread_create (void (*)(void*), void*);
+NIRVANA_MOCK_EXPORT int host_Thread_join (host_Thread*);
+NIRVANA_MOCK_EXPORT unsigned int host_hardware_concurrency ();
+
 #endif

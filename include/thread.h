@@ -124,16 +124,6 @@ private:
 
 	struct ImplBase
 	{
-		void* operator new (size_t cb)
-		{
-			return host_allocate (cb, alignof (Impl));
-		}
-
-		void operator delete (void* p) noexcept
-		{
-			host_release (p);
-		}
-
 		ImplBase () :
 			host_thread (nullptr)
 		{}
@@ -161,6 +151,16 @@ private:
 	template <class F>
 	struct Impl : ImplBase
 	{
+		void* operator new (size_t cb)
+		{
+			return host_allocate (cb, alignof (Impl));
+		}
+
+		void operator delete (void* p) noexcept
+		{
+			host_release (p);
+		}
+
 		Impl (F&& f) :
 			function (std::move (f))
 		{}

@@ -24,6 +24,8 @@
 *  popov.nirvana@gmail.com
 */
 #include "../include/HostAPI.h"
+#include <errno.h>
+#include <stdexcept>
 
 #ifdef _WIN32
 
